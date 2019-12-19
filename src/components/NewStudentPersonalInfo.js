@@ -26,7 +26,6 @@ export default class NewStudentPersonalInfo extends React.Component {
   render() {
     const {handleInputs, name, education, hub, address, doj, dob, handleDobChange, handleDojChange, handleHubChange, poNumber, aadhar} = this.props;
     const { hubList} = this.state;
-console.log('render hubs', hubList, '  ' + hub);
     return <React.Fragment>
 
         <Form>

@@ -21,10 +21,17 @@ export default class NewStudent extends Component {
     this.handleIdProofFileChange = this.handleIdProofFileChange.bind(this);
     this.handlePicChange = this.handlePicChange.bind(this);
   }
-  state = {isLoading: false};
+  state = {
+    isLoading: false,
+    medical_record: [],
+    weight: '',
+    height: '',
+  };
 
   handleChange = (e, { name, value }) => this.setState({ [name]: value });
-
+  handleStateFieldChange = (key, value) => {
+    this.setState({[key]: value});
+  }
   handleHubChange = (event, props) => {
   console.log('hub change', props);
     this.setState({hub: props.value})
@@ -72,7 +79,7 @@ export default class NewStudent extends Component {
             {...this.state}
         />
         </Tab.Pane> },
-      { menuItem: 'Medical', pane: <Tab.Pane ><MedicalInfo handleInputs={this.handleChange} {...this.state}/></Tab.Pane> },
+      { menuItem: 'Medical', pane: <Tab.Pane ><MedicalInfo {...this.state} handleStateFieldChange={this.handleStateFieldChange}/></Tab.Pane> },
       { menuItem: 'Family', pane: <Tab.Pane><FamilyDetails handleInputs={this.handleChange} {...this.state}/></Tab.Pane> },
       { menuItem: 'Misc', pane:  <Tab.Pane > <MiscDetails handleInputs={this.handleChange} {...this.state}/></Tab.Pane> },
       { menuItem: 'Upload', pane: <Tab.Pane> <StudentUpload
@@ -93,28 +100,58 @@ export default class NewStudent extends Component {
         <Tab renderActiveOnly={false} panes={panes} menu={{attached: true, size: 'small', tabular: true }} />
         <Button primary content={'Create Student'} disabled={isLoading}
                 onClick={() => {
-                  if ( !aadhar || !this.state.idProofs || !this.state.picture || !name || !dob || !doj || !address || !poNumber) {
-                    createNotification('error', 'Please fill required fields');
+                  console.log(this.state);
+                  if (!name) {
+                    createNotification('error', 'Name cannot be empty');
                     return;
                   }
-
+                  if (!aadhar) {
+                    createNotification('error', 'Aadhar Number cannot be empty');
+                    return;
+                  }
+                  if (!doj) {
+                    createNotification('error', 'Date of Joining cannot be empty');
+                    return;
+                  }
+                  if (!address) {
+                    createNotification('error', 'Address cannot be empty');
+                    return;
+                  }
+                  if (!poNumber) {
+                    createNotification('error', 'Post Office Number cannot be empty');
+                    return;
+                  }
+                  if (!dob) {
+                    createNotification('error', 'Date Of Birth cannot be empty');
+                    return;
+                  }
+                  if (!this.state.idProofs) {
+                    createNotification('error', 'Id proof cannot be empty');
+                    return;
+                  }
+                  if (!this.state.picture) {
+                    createNotification('error', 'Picture cannot be empty');
+                    return;
+                  }
+                  
                   this.setState({isLoading: true})
                   const data = new FormData();
-                  data.append('image1', this.state.idProofs && this.state.idProofs.length > 0 && this.state.idProofs[0])
-                  data.append('image2', this.state.picture && this.state.picture.length > 0 && this.state.picture[0])
+                  // data.append('image1', this.state.idProofs && this.state.idProofs.length > 0 && this.state.idProofs[0])
+                  // data.append('image2', this.state.picture && this.state.picture.length > 0 && this.state.picture[0])
                   data.append('aadharImage', this.state.picture && this.state.picture.length > 1 && this.state.picture[1])
                   data.append('student_name', name)
                   data.append('hub_id', 81)
                   data.append('sport_id', 31)
-                  data.append('active', 'A')
+                  data.append('active', '1')
                   data.append('status', 'ACTIVE')
                   data.append('dob', this.state.dob_long)
                   data.append('aadhar', aadhar)
                   data.append('year', this.state.doj_long);
-                  data.append('weight', 20);
-                  data.append('height', 10);
+                  data.append('weight', this.state.weight);
+                  data.append('height', this.state.height);
                   data.append('address', address);
                   data.append('post_office', poNumber)
+                  data.append('medical_record', JSON.stringify(this.state.medical_record))
 
                   fetch('https://ohack.herokuapp.com/v1/victoryfoundation/student', {
                     method: 'POST',
