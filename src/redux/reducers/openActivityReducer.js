@@ -10,7 +10,7 @@ const openActivityReducer = (state = initialState, action) => {
       case 'ADD_CURRENT_ACTIVITY':
           return Object.assign({}, state, { current : action.data });
       default:
-      return state
+      return {...state}
   }
 };
 

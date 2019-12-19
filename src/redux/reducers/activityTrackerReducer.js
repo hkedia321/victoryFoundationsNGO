@@ -40,7 +40,7 @@ const activityTrackerReducer = (state = initialState, action) => {
           let gm_data = action.data;
           return Object.assign({}, state, { groundMarking: {...state.groundMarking, ...gm_data }});
           default:
-              return state;
+              return {...state};
       return state
   }
 };

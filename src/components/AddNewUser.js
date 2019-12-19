@@ -30,9 +30,8 @@ export default class AddNewUser extends React.Component {
     this.handleDateChange = this.handleDateChange.bind(this)
   }
 
-  state = {  isLoading: false};
-
-
+  state = {  isLoading: false, displayError: false};
+  
   handleChange = (e, { name, value }) => this.setState({ [name]: value })
 
   handleUserRoleChange = (event, props) => {
@@ -43,15 +42,64 @@ export default class AddNewUser extends React.Component {
     this.setState({sport: props.value})
   };
 
+  validateInput = (event,props) => {
+    for(var key in initalState){
+      if(!this.validateField(key)){
+        return false;
+      }
+    }
+    return true;
+  };
+
+  validateField=(key)=>{
+    switch(key){
+      case 'name':
+      case 'username':
+      if(!this.state[key])
+      {
+        console.log(`${key} is invalid`);
+        return false;
+      }
+      break;
+      case 'address':
+      case 'education':
+      case 'sport': 
+      case 'startDate':
+      if(this.state.user_role===COACH_ID && !this.state[key]){
+        console.log(`${key} is invalid`);  
+        return false;
+      }
+      break;
+
+      case 'pincode':
+          if(this.state.user_role===COACH_ID && this.validatePincode() ){
+            console.log(`${key} is invalid`);  
+            return false;
+          }
+      case 'mobile':
+          if(this.state.user_role===COACH_ID && this.validateMobile() ){
+            console.log(`${key} is invalid`);  
+            return false;
+          }
+    }
+    return true;
+  }
+
   handleDateChange(date) {
     this.setState({
       startDate: date,
       date_long: date.getTime()/1000
     });
   }
+
+  //returns true if not valid
+  validatePincode =() => {return !this.state.pincode || isNaN(this.state.pincode) || this.state.pincode.length<6}
+
+  //returns true if not valid
+  validateMobile =() => !this.state.mobile || isNaN(this.state.mobile) || this.state.mobile.length<10
+
   render() {
     const {name, username, user_role, address, pincode, mobile, startDate, education, sport, about, isLoading, date_long} = this.state;
-
     return <React.Fragment>
       <Header as='h3' icon textAlign='center'>
         <Icon name='user outline' circular />
@@ -63,28 +111,28 @@ export default class AddNewUser extends React.Component {
         <Grid doubling >
             <Grid.Row>
               <Grid.Column textAlign={'left'} mobile={6}>
-                <label className={'Admin-Form-Label'}>Name </label>
+                <label className={'Admin-Form-Label'}>Name<sup style={{color:'red',fontSize: '100%'}}>*</sup> </label>
               </Grid.Column>
               <Grid.Column mobile={10}>
                 <Form.Field>
-                  <Form.Input name={'name'} value={name} fluid placeholder="Name" onChange={this.handleChange}/>
+                  <Form.Input name={'name'} value={name} fluid placeholder="Name" onChange={this.handleChange} error={this.state.displayError && !this.state.name}/>
                 </Form.Field>
               </Grid.Column>
             </Grid.Row>
             <Grid.Row columns={2}>
               <Grid.Column textAlign={'left'} mobile={6}>
-                <label className={'Admin-Form-Label'}>Username </label>
+                <label className={'Admin-Form-Label'}>Username<sup style={{color:'red',fontSize: '100%'}}>*</sup> </label>
               </Grid.Column>
               <Grid.Column mobile={10}>
                 <Form.Field>
-                  <Form.Input name={'username'} value={username} fluid placeholder="Username" onChange={this.handleChange}/>
+                  <Form.Input name={'username'} value={username} fluid placeholder="Username" onChange={this.handleChange} error={this.state.displayError && !this.state.username}/>
                 </Form.Field>
               </Grid.Column>
             </Grid.Row>
 
           <Grid.Row>
             <Grid.Column mobile={6} textAlign={'left'}>
-              <label className={'Admin-Form-Label'}>Role</label>
+              <label className={'Admin-Form-Label'}>Role<sup style={{color:'red',fontSize: '100%'}}>*</sup></label>
             </Grid.Column>
             <Grid.Column mobile={10}>
             <Form.Field>
@@ -97,21 +145,21 @@ export default class AddNewUser extends React.Component {
             <React.Fragment>
               <Grid.Row centered>
                 <Grid.Column width={6}>
-                  <label className={'Admin-Form-Label'}>Address </label>
+                  <label className={'Admin-Form-Label'}>Address<sup style={{color:'red',fontSize: '100%'}}>*</sup> </label>
                 </Grid.Column>
                 <Grid.Column width={10}>
-                  <Form.Field>
+                  <Form.Field error={this.state.displayError && !this.state.address}>
                     <TextArea name={'address'} value={address} placeholder='Address' style={{ minHeight: 100 }} onChange={this.handleChange}/>
                   </Form.Field>
                 </Grid.Column>
               </Grid.Row>
               <Grid.Row centered>
                 <Grid.Column width={6}>
-                  <label className={'Admin-Form-Label'}>Pincode </label>
+                  <label className={'Admin-Form-Label'}>Pincode<sup style={{color:'red',fontSize: '100%'}}>*</sup> </label>
                 </Grid.Column>
                 <Grid.Column width={10}>
                   <Form.Field>
-                    <Form.Input fluid name={'pincode'} value={pincode} placeholder="Pincode" onChange={this.handleChange}/>
+                    <Form.Input fluid name={'pincode'} value={pincode} placeholder="Pincode" onChange={this.handleChange} error={this.state.displayError && (!this.state.pincode || isNaN(this.state.pincode) || this.state.pincode.length<6)}/>
                   </Form.Field>
                 </Grid.Column>
 
@@ -119,11 +167,11 @@ export default class AddNewUser extends React.Component {
 
               <Grid.Row centered>
                 <Grid.Column width={6}>
-                  <label className={'Admin-Form-Label'}>Mobile </label>
+                  <label className={'Admin-Form-Label'}>Mobile<sup style={{color:'red',fontSize: '100%'}}>*</sup> </label>
                 </Grid.Column>
                 <Grid.Column width={10}>
                   <Form.Field>
-                    <Form.Input name={'mobile'} value={mobile} fluid placeholder="Mobile" onChange={this.handleChange}/>
+                    <Form.Input name={'mobile'} value={mobile} fluid placeholder="Mobile" onChange={this.handleChange} error={this.state.displayError && (!this.state.mobile || isNaN(this.state.mobile) || this.state.mobile.length<10)}/>
                   </Form.Field>
                 </Grid.Column>
 
@@ -131,10 +179,10 @@ export default class AddNewUser extends React.Component {
 
               <Grid.Row centered>
                 <Grid.Column width={6}>
-                  <label className={'Admin-Form-Label'}>Date of birth </label>
+                  <label className={'Admin-Form-Label'}>Date of birth<sup style={{color:'red',fontSize: '100%'}}>*</sup> </label>
                 </Grid.Column>
                 <Grid.Column width={10}>
-
+                <Form.Field error={this.state.displayError && !this.state.startDate}>
                   <DatePicker
                     selected={startDate}
                     placeholderText="Click to select a date of birth"
@@ -145,19 +193,8 @@ export default class AddNewUser extends React.Component {
                     dropdownMode="select"
                     dateFormat="dd/MM/yyyy"
                     onChange={this.handleDateChange}
+                   
                   />
-
-                </Grid.Column>
-
-              </Grid.Row>
-
-              <Grid.Row centered>
-                <Grid.Column width={6}>
-                  <label className={'Admin-Form-Label'}>Education </label>
-                </Grid.Column>
-                <Grid.Column width={10}>
-                  <Form.Field>
-                    <Form.Input placeholder='Education' fluid name={'education'} value={education} onChange={this.handleChange}/>
                   </Form.Field>
                 </Grid.Column>
 
@@ -165,10 +202,22 @@ export default class AddNewUser extends React.Component {
 
               <Grid.Row centered>
                 <Grid.Column width={6}>
-                  <label className={'Admin-Form-Label'}>Sport </label>
+                  <label className={'Admin-Form-Label'}>Education<sup style={{color:'red',fontSize: '100%'}}>*</sup> </label>
                 </Grid.Column>
                 <Grid.Column width={10}>
                   <Form.Field>
+                    <Form.Input placeholder='Education' fluid name={'education'} value={education} onChange={this.handleChange} error={this.state.displayError && !this.state.education}/>
+                  </Form.Field>
+                </Grid.Column>
+
+              </Grid.Row>
+
+              <Grid.Row centered>
+                <Grid.Column width={6}>
+                  <label className={'Admin-Form-Label'}>Sport<sup style={{color:'red',fontSize: '100%'}}>*</sup> </label>
+                </Grid.Column>
+                <Grid.Column width={10}>
+                  <Form.Field error={this.state.displayError && !this.state.sport}>
                     <Dropdown placeholder='Sport(s)' value={sport} fluid selection options={[{key: 'a', text: 'Football' ,value: 31},
                       {key: 'b', text: 'Boxing', value: 41}]} onChange={this.handleSportChange}/>
                   </Form.Field>
@@ -180,7 +229,7 @@ export default class AddNewUser extends React.Component {
               </Grid.Column>
               <Grid.Column width={10}>
                 <Form.Field>
-                  <TextArea name={'about'} value={about} placeholder='About' style={{ minHeight: 100 }} onChange={this.handleChange}/>
+                  <TextArea name={'about'} value={about} placeholder='About' style={{ minHeight: 100 }} onChange={this.state.displayError && this.handleChange}/>
                 </Form.Field>
               </Grid.Column>
             </Grid.Row>
@@ -190,6 +239,13 @@ export default class AddNewUser extends React.Component {
         </Form>
         <br/>
         {this.state.user_role === COACH_ID && <Button disabled={isLoading} primary content={'Add New Coach'} onClick={()=> {
+          if(!this.validateInput()){
+            this.setState({displayError: true});
+            console.log(this.state);
+            createNotification('error', 'Please fill the mandatory fields and try again');
+            return;
+          }
+          this.setState({displayError: false});
           this.setState({isLoading: true})
           fetch("https://ohack.herokuapp.com/v1/victoryfoundation/users",
             {
@@ -223,7 +279,6 @@ export default class AddNewUser extends React.Component {
                 const {statusCodeValue} = result;
                 if (statusCodeValue < 400) {
                   this.setState({
-                    isLoaded: true,
                     isLoading: false,
                     result: result,
                     ...initalState
@@ -231,7 +286,6 @@ export default class AddNewUser extends React.Component {
                   createNotification('success', 'Coach Added')
                 } else {
                   this.setState({
-                    isLoaded: true,
                     isLoading: false,
                     error: result
                   });
@@ -243,7 +297,6 @@ export default class AddNewUser extends React.Component {
               // exceptions from actual bugs in components.
               (error) => {
                 this.setState({
-                  isLoaded: true,
                   isLoading: false,
                   error
                 });
@@ -252,6 +305,12 @@ export default class AddNewUser extends React.Component {
             )
         }}/> }
         {this.state.user_role === ADMIN_ID && <Button disabled={isLoading} primary content={'Add New Admin'} onClick={()=> {
+          if(!this.validateInput()){
+            this.setState({displayError: true});
+            createNotification('error', 'Please fill the mandatory fields and try again');
+            return;
+          }
+          this.setState({displayError: false});
           this.setState({isLoading: true})
           console.log({
             method: 'POST',
@@ -302,7 +361,6 @@ export default class AddNewUser extends React.Component {
                 return result
               }).catch((error) => {
             this.setState({
-              isLoaded: true,
               isLoading: false,
               error
             });
