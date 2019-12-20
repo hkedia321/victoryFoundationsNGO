@@ -2,7 +2,6 @@ import React from "react";
 import Form from "semantic-ui-react/dist/es/collections/Form/Form";
 import Segment from "semantic-ui-react/dist/es/elements/Segment/Segment";
 import Grid from "semantic-ui-react/dist/es/collections/Grid/Grid";
-import Label from "semantic-ui-react/dist/es/elements/Label/Label";
 import Button from "semantic-ui-react/dist/es/elements/Button/Button";
 import Dropdown from "semantic-ui-react/dist/es/modules/Dropdown/Dropdown";
 import DatePicker from "react-datepicker/es/index";
@@ -10,7 +9,6 @@ import TextArea from "semantic-ui-react/dist/es/addons/TextArea/TextArea";
 import { createNotification } from "../utils/utils";
 import Header from "semantic-ui-react/dist/es/elements/Header/Header";
 import Icon from "semantic-ui-react/dist/es/elements/Icon/Icon";
-import { timingSafeEqual } from "crypto";
 
 const COACH_ID = 31;
 const ADMIN_ID = 21;
@@ -20,37 +18,28 @@ const options = [
 ];
 
 const initalState = {
-  name: "",
-  username: "",
-  user_role: "",
-  address: "",
-  pincode: "",
-  mobile: "",
-  startDate: null,
-  education: "",
-  sport: "",
-  about: ""
-};
+  name: '', username: '', user_role: '', address: '', pincode: '', mobile: '', startDate: null, education: '', sport: '', about: ''
+}
 
 export default class EditUser extends React.Component {
   constructor(props) {
     super(props);
     this.handleDateChange = this.handleDateChange.bind(this);
+    this.state = {
+      isLoading: false,
+      displayError: false,
+      
+    };
+    this.initializeState();
   }
 
-  state = { isLoading: false, displayError: false };
-
-  handleChange = (e, { name, value }) => this.setState({ [name]: value });
-
-  handleUserRoleChange = (event, props) => {
-    this.setState({ user_role: props.value });
-  };
+  handleChange = (e, { name, value }) => {this.setState({ [name]: value })};
 
   handleSportChange = (event, props) => {
     this.setState({ sport: props.value });
   };
 
-  validateInput = (event, props) => {
+  validateInput = (event) => {
     for (var key in initalState) {
       if (!this.validateField(key)) {
         return false;
@@ -114,63 +103,40 @@ export default class EditUser extends React.Component {
     isNaN(this.state.mobile) ||
     this.state.mobile.length < 10;
 
-  render() {
-    let props = this.props.props;
-    // props.clearEditUser();
-    console.log(this.props);
-    let name,
-      username,
-      user_role,
-      address,
-      pincode,
-      mobile,
-      startDate,
-      education,
-      sport,
-      about,
-      isLoading,
-      date_long;
-    if (props.state.userManagement.userToBeEdited.role.type === "ADMIN") {
-      name = props.state.userManagement.userToBeEdited.name;
-      username = props.state.userManagement.userToBeEdited.username;
-      user_role =
-        props.state.userManagement.userToBeEdited.role.type === "ADMIN"
+  
+    initializeState=()=>{
+      if (this.props.user.role.type === "ADMIN") {
+      this.state.name = this.props.user.name;
+      this.state.username = this.props.user.username;
+      this.state.user_role =
+        this.props.user.role.type === "ADMIN"
           ? ADMIN_ID
           : COACH_ID;
-      mobile = props.state.userManagement.userToBeEdited.updatedOn;
-      //   >>>>>>>>>>>>>>>>>>>>moblie is not capture in state<<<<<<<<<<<<<<<<<<
-      //   address = props.state.userManagement.userToBeEdited.coach.address;
-      //   pincode = props.state.userManagement.userToBeEdited.coach.zipcode;
-      //   startDate = props.state.userManagement.userToBeEdited.coach.createdOn;
-      //   education = props.state.userManagement.userToBeEdited.coach.education;
-      //   sport =
-      //       props.state.userManagement.userToBeEdited.coach.sport.sports_name ===
-      //           "FOOT BALL"
-      //           ? 31
-      //           : 41;
-      //   about = props.state.userManagement.userToBeEdited.coach.about;
-      //   date_long = props.state.userManagement.userToBeEdited.coach.updated;
+      this.state.mobile = this.props.user.mobile;
     } else {
-      name = props.state.userManagement.userToBeEdited.name;
-      username = props.state.userManagement.userToBeEdited.username;
-      user_role =
-        props.state.userManagement.userToBeEdited.role.type === "Admin"
+      this.state.name = this.props.user.name;
+      this.state.username = this.props.user.username;
+      this.state.user_role =
+        this.props.user.role.type === "Admin"
           ? ADMIN_ID
           : COACH_ID;
-      mobile = props.state.userManagement.userToBeEdited.coach.createdOn;
+          this.state.mobile = this.props.user.coach.mobile;
       //   >>>>>>>>>>>>>>>>>>>>moblie is not capture in state<<<<<<<<<<<<<<<<<<
-      address = props.state.userManagement.userToBeEdited.coach.address;
-      pincode = props.state.userManagement.userToBeEdited.coach.zipcode;
-      startDate = props.state.userManagement.userToBeEdited.coach.createdOn;
-      education = props.state.userManagement.userToBeEdited.coach.education;
-      sport =
-        props.state.userManagement.userToBeEdited.coach.sport.sports_name ===
+      this.state.address = this.props.user.coach.address;
+      this.state.pincode = this.props.user.coach.zipcode;
+      this.state.startDate = new Date(this.props.user.coach.dob*1000);
+      this.state.education = this.props.user.coach.education;
+      this.state.sport =
+        this.props.user.coach.sport.sports_name ===
         "FOOT BALL"
           ? 31
           : 41;
-      about = props.state.userManagement.userToBeEdited.coach.about;
-      date_long = props.state.userManagement.userToBeEdited.coach.updated;
+      this.state.about = this.props.user.coach.about;
+      this.state.date_long = this.props.user.coach.createdon;
     }
+  }
+  render() {
+    const {name, username, user_role, address, pincode, mobile, startDate, education, sport, about, isLoading, date_long} = this.state;
     return (
       <React.Fragment>
         <Header as="h3" icon textAlign="center">
@@ -214,8 +180,6 @@ export default class EditUser extends React.Component {
                       value={username}
                       fluid
                       placeholder="Username"
-                      onChange={this.handleChange}
-                      error={this.state.displayError && !this.state.username}
                     />
                   </Form.Field>
                 </Grid.Column>
@@ -345,6 +309,7 @@ export default class EditUser extends React.Component {
                           dropdownMode="select"
                           dateFormat="dd/MM/yyyy"
                           onChange={this.handleDateChange}
+                          value={startDate}
                         />
                       </Form.Field>
                     </Grid.Column>
@@ -413,9 +378,7 @@ export default class EditUser extends React.Component {
                           value={about}
                           placeholder="About"
                           style={{ minHeight: 100 }}
-                          onChange={
-                            this.state.displayError && this.handleChange
-                          }
+                          onChange={this.handleChange}
                         />
                       </Form.Field>
                     </Grid.Column>
@@ -427,13 +390,12 @@ export default class EditUser extends React.Component {
           <br />
           {this.state.user_role === COACH_ID && (
             <Button
-              disabled={isLoading}
+              disabled={this.state.isLoading}
               primary
-              content={"Add New Coach"}
-              onClick={() => {
-                if (!this.validateInput()) {
+              content={"Update Coach"}
+              onClick={(e) => {
+                if (!this.validateInput(e)) {
                   this.setState({ displayError: true });
-                  console.log(this.state);
                   createNotification(
                     "error",
                     "Please fill the mandatory fields and try again"
@@ -443,9 +405,9 @@ export default class EditUser extends React.Component {
                 this.setState({ displayError: false });
                 this.setState({ isLoading: true });
                 fetch(
-                  "https://ohack.herokuapp.com/v1/victoryfoundation/users",
+                  `https://ohack.herokuapp.com/v1/victoryfoundation/users/${this.props.user.id}`,
                   {
-                    method: "POST",
+                    method: "PUT",
                     headers: {
                       Accept: "application/json",
                       "Content-Type": "application/json"
@@ -457,6 +419,7 @@ export default class EditUser extends React.Component {
                         address: address,
                         experience: education,
                         dob: date_long,
+                        mobile:mobile,
                         sport: {
                           id: sport
                         }
@@ -477,9 +440,9 @@ export default class EditUser extends React.Component {
                         this.setState({
                           isLoading: false,
                           result: result,
-                          ...initalState
+                          ...this.initalState
                         });
-                        createNotification("success", "Coach Added");
+                        createNotification("success", "updated details");
                       } else {
                         this.setState({
                           isLoading: false,
@@ -487,7 +450,7 @@ export default class EditUser extends React.Component {
                         });
                         createNotification(
                           "error",
-                          "Could not add coach, please try again"
+                          "Could not update details, please try again"
                         );
                       }
                     },
@@ -501,7 +464,7 @@ export default class EditUser extends React.Component {
                       });
                       createNotification(
                         "error",
-                        "Could not add coach, please try again"
+                        "Could not update details, please try again"
                       );
                     }
                   );
@@ -512,7 +475,7 @@ export default class EditUser extends React.Component {
             <Button
               disabled={isLoading}
               primary
-              content={"Add New Admin"}
+              content={"Update Admin"}
               onClick={() => {
                 if (!this.validateInput()) {
                   this.setState({ displayError: true });
@@ -524,24 +487,10 @@ export default class EditUser extends React.Component {
                 }
                 this.setState({ displayError: false });
                 this.setState({ isLoading: true });
-                console.log({
-                  method: "POST",
-                  headers: {
-                    Accept: "application/json",
-                    "Content-Type": "application/json"
-                  },
-                  body: JSON.stringify({
-                    username: username,
-                    name: name,
-                    role: {
-                      id: user_role
-                    }
-                  })
-                });
                 fetch(
-                  "https://ohack.herokuapp.com/v1/victoryfoundation/users",
+                  `https://ohack.herokuapp.com/v1/victoryfoundation/users/${this.props.user.id}`,
                   {
-                    method: "POST",
+                    method: "PUT",
                     headers: {
                       Accept: "application/json",
                       "Content-Type": "application/json"
@@ -559,18 +508,18 @@ export default class EditUser extends React.Component {
                   .then(result => {
                     const { statusCodeValue } = result;
                     if (statusCodeValue < 400 && statusCodeValue > 200) {
-                      createNotification("success", "Admin User Added");
+                      createNotification("success", "updated details");
                       this.setState({
                         isLoading: false,
                         result: result,
-                        ...initalState
+                        ...this.initalState
                       });
                     } else {
                       this.setState({
                         isLoading: false,
                         error: result
                       });
-                      createNotification("error", "Could not add Admin");
+                      createNotification("error", "Could not update details");
                     }
                     return result;
                   })
@@ -579,16 +528,9 @@ export default class EditUser extends React.Component {
                       isLoading: false,
                       error
                     });
-                    createNotification("error", "Could not add Admin");
+                    createNotification("error", "Could not update details");
                   });
               }}
-            />
-          )}
-          {!this.state.user_role && (
-            <Button
-              disabled
-              content={"Update User"}
-              onClick={() => console.log(this.state)}
             />
           )}
         </Segment>

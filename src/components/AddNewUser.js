@@ -229,7 +229,7 @@ export default class AddNewUser extends React.Component {
               </Grid.Column>
               <Grid.Column width={10}>
                 <Form.Field>
-                  <TextArea name={'about'} value={about} placeholder='About' style={{ minHeight: 100 }} onChange={this.state.displayError && this.handleChange}/>
+                  <TextArea name={'about'} value={about} placeholder='About' style={{ minHeight: 100 }} onChange={this.handleChange}/>
                 </Form.Field>
               </Grid.Column>
             </Grid.Row>
@@ -259,8 +259,10 @@ export default class AddNewUser extends React.Component {
                   name: name,
                   about: about,
                   address: address,
-                  experience: education,
+                  education: education,
                   dob: date_long,
+                  mobile:mobile,
+                  zipcode:pincode,
                   sport: {
                     id: sport
                   },

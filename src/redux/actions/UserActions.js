@@ -26,9 +26,3 @@ export const editUserDetails = payload => {
     payload
   };
 };
-
-export const clearEditUser = () => {
-  return {
-    type: "SET_EDIT_TO_FALSE"
-  };
-};

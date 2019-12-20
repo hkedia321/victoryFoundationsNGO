@@ -32,7 +32,7 @@ class Header extends Component {
       { as:() => <React.Fragment>
           { role === 'ADMIN' && <Dropdown text='User Management' pointing className='link item'>
           <Dropdown.Menu>
-          <Dropdown.Item onClick={this.navigate} value={'/user_mgmt'}>User Management</Dropdown.Item>
+          <Dropdown.Item onClick={this.navigate} value={'/user_mgmt'}>Create User</Dropdown.Item>
       <Dropdown.Item onClick={this.navigate} value={'/user_status'}>User Details</Dropdown.Item>
       </Dropdown.Menu>
   </Dropdown>}

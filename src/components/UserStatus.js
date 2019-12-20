@@ -7,6 +7,7 @@ import _ from "lodash";
 import { Divider, Dropdown } from "semantic-ui-react";
 import { flipUserStatus, editUserDetails } from "../redux/actions/UserActions";
 // import { browserHistory } from "react-router";
+import { createNotification } from "../utils/utils";
 
 class UserStatus extends React.Component {
   constructor(props) {
@@ -32,7 +33,6 @@ class UserStatus extends React.Component {
   }
 
   render() {
-    console.log(this.props);
     return (
       <React.Fragment>
         <br />
@@ -115,11 +115,16 @@ class UserStatus extends React.Component {
                     <Table.Cell>
                       <Dropdown text="Select Action ">
                         <Dropdown.Menu>
-                          <Dropdown.Item text="View/Edit" key={user.id} />
+                          <Dropdown.Item text="View/Edit" key={user.id} onClick={() => {
+                              this.props.editUserDetails(user);
+                              helper(this.props);
+                            }}/>
                           <Dropdown.Item
                             text="Activate User"
                             key={user.id + " inactivate"}
-                            onClick={this.props.flipUserStatus.bind(this, user)}
+                            onClick={() => {
+                              apiCall(user, this.props.flipUserStatus);
+                            }}
                           />
                         </Dropdown.Menu>
                       </Dropdown>
@@ -134,31 +139,44 @@ class UserStatus extends React.Component {
   }
 }
 
-//>>>>>>>>>>>>>>>>>>>>this call has to PUT with user as body<<<<<<<<<<<<<<<<<<<<<<
+
 async function apiCall(user, flipUserStatus) {
-  let response = await fetch(`/`, {
-    method: "GET",
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json"
-    }
-    // body: JSON.stringify(user)
-  }).then(result => {
-    console.log(result);
-    console.log("one");
-    flipUserStatus(user);
-    console.log("two");
+  user.status = user.status == "I" ? "A" : "I";
+  await fetch(`https://ohack.herokuapp.com/v1/victoryfoundation/users/${user.id}`,
+        {
+          method: "PUT",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(user)
+        }
+      )
+      .then(response => response.json())
+    .then(result => {
+      const { statusCodeValue } = result;
+      if (statusCodeValue < 400) {
+        flipUserStatus(user);
+        createNotification("success", "status is updated.");
+      }
+      else{
+        createNotification("error","Could not update status, please try again");
+      }
     return true;
-  });
+  }).catch(error => {
+          createNotification(
+            "error",
+            "Could not update status, please try again"
+          );
+        //flipUserStatus(user);
+        //createNotification("success", "status is updated.");
+        });
 }
 
 const helper = props => {
   props.history.push(`/edit_user`);
 };
 const mapStateToProps = state => {
-  console.log("helllooooo");
-  console.log(state);
-  // browserHistory.push("/user_mgmt");
   return {
     userList: state.userManagement.userList,
     showEditUserScreen: state.userManagement.editUser
